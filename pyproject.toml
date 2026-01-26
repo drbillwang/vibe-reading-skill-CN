@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibe-reading-skill"
+version = "0.1.0"
+description = "智能阅读分析 Agent Skill - AI 驱动的书籍阅读分析工具"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = [
+    "ai",
+    "reading",
+    "analysis",
+    "book",
+    "epub",
+    "summarization",
+    "gemini",
+    "skill",
+    "agent"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Education",
+]
+
+dependencies = [
+    "google-generativeai>=0.3.0",
+    "ebooklib>=0.18",
+    "markdown>=3.4.0",
+    "weasyprint>=59.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "flake8>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/vibe-reading-skill"
+Documentation = "https://github.com/yourusername/vibe-reading-skill#readme"
+Repository = "https://github.com/yourusername/vibe-reading-skill.git"
+Issues = "https://github.com/yourusername/vibe-reading-skill/issues"
+
+[tool.setuptools]
+py-modules = ["__init__", "main", "gemini_client", "utils"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38']

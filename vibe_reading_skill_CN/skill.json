@@ -1,0 +1,129 @@
+{
+  "id": "vibe-reading-skill",
+  "name": "Vibe Reading Skill",
+  "version": "0.1.0",
+  "description": "智能阅读分析 Agent Skill，帮助用户快速理解大部头著作的核心内容。通过 AI 的深度阅读和结构化分析，将整本书转化为易于消化的总结报告。",
+  "author": "Your Name",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/vibe-reading-skill.git"
+  },
+  "entry_point": {
+    "module": "vibe_reading_skill_CN",
+    "function": "process_book"
+  },
+  "parameters": {
+    "input_path": {
+      "type": "string",
+      "required": true,
+      "description": "输入文件路径（EPUB 或 TXT 格式）",
+      "example": "book.epub"
+    },
+    "output_dir": {
+      "type": "string",
+      "required": false,
+      "description": "输出目录（可选，默认使用项目目录结构）",
+      "default": null
+    },
+    "api_key": {
+      "type": "string",
+      "required": false,
+      "description": "Gemini API Key（可选，也可通过环境变量 GEMINI_API_KEY 设置）",
+      "default": null
+    },
+    "model": {
+      "type": "string",
+      "required": false,
+      "description": "使用的 Gemini 模型（可选，默认 gemini-2.5-pro）",
+      "default": "gemini-2.5-pro",
+      "options": [
+        "gemini-3-pro",
+        "gemini-3",
+        "gemini-2.5-pro",
+        "gemini-2.5-flash",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash"
+      ]
+    }
+  },
+  "returns": {
+    "type": "object",
+    "properties": {
+      "status": {
+        "type": "string",
+        "description": "处理状态：'success' 或 'error'"
+      },
+      "message": {
+        "type": "string",
+        "description": "处理结果消息"
+      },
+      "output_paths": {
+        "type": "object",
+        "description": "输出文件路径",
+        "properties": {
+          "chapters": {
+            "type": "string",
+            "description": "章节文件目录"
+          },
+          "summaries": {
+            "type": "string",
+            "description": "总结文件目录"
+          },
+          "pdf": {
+            "type": "string",
+            "description": "PDF 文件路径（如果生成）"
+          },
+          "html": {
+            "type": "string",
+            "description": "HTML 文件路径（如果生成）"
+          }
+        }
+      },
+      "metadata": {
+        "type": "object",
+        "description": "处理元数据",
+        "properties": {
+          "book_title": {
+            "type": "string",
+            "description": "书籍标题"
+          },
+          "chapter_count": {
+            "type": "integer",
+            "description": "章节数量"
+          },
+          "processing_time": {
+            "type": "number",
+            "description": "处理时间（秒）"
+          }
+        }
+      }
+    }
+  },
+  "requirements": {
+    "python": ">=3.8",
+    "dependencies": [
+      "google-generativeai",
+      "ebooklib",
+      "markdown",
+      "weasyprint"
+    ]
+  },
+  "features": [
+    "智能章节识别",
+    "AI 驱动的深度分析",
+    "上下文连贯理解",
+    "多格式输出（Markdown、PDF、HTML）",
+    "多语言支持",
+    "交互式问答界面"
+  ],
+  "tags": [
+    "reading",
+    "analysis",
+    "ai",
+    "book",
+    "epub",
+    "summarization",
+    "gemini"
+  ]
+}
