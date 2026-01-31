@@ -106,7 +106,7 @@
       "google-generativeai",
       "ebooklib",
       "markdown",
-      "weasyprint"
+      "playwright"
     ]
   },
   "features": [

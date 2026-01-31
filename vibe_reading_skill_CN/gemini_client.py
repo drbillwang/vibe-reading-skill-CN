@@ -1,6 +1,11 @@
 """
 Gemini API 客户端封装
 提供与 Google Gemini API 交互的接口
+
+特性：
+- 自动重试机制：遇到 429 配额限制错误时，自动重试最多 5 次
+- 智能等待时间：从错误信息中提取建议等待时间，或使用预定义序列（60/90/120/150/180 秒）
+- 代理支持：支持通过 HTTP_PROXY 和 HTTPS_PROXY 环境变量配置代理
 """
 
 import os
@@ -14,13 +19,14 @@ load_dotenv()
 class GeminiClient:
     """Gemini API 客户端"""
     
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None, proxy: Optional[str] = None):
         """
         初始化 Gemini 客户端
         
         Args:
             api_key: Gemini API Key，如果不提供则从环境变量读取
             model: 使用的模型名称，如果不提供则从环境变量读取，默认使用 gemini-2.5-pro
+            proxy: 代理服务器地址（格式：http://host:port 或 https://host:port），用于解决地理位置限制
         """
         self.api_key = api_key or os.getenv("GEMINI_API_KEY")
         if not self.api_key:
@@ -48,6 +54,14 @@ class GeminiClient:
             print(f"⚠️  警告: 模型 '{self.model_name}' 不在推荐列表中，但将继续尝试使用")
             print(f"   推荐模型: {', '.join(self.available_models[:3])}")
         
+        # 配置代理（如果提供）
+        proxy_url = proxy or os.getenv("HTTP_PROXY") or os.getenv("HTTPS_PROXY")
+        if proxy_url:
+            print(f"🌐 使用代理: {proxy_url}")
+            # 设置环境变量，让 google-generativeai 使用代理
+            os.environ['HTTP_PROXY'] = proxy_url
+            os.environ['HTTPS_PROXY'] = proxy_url
+        
         genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(self.model_name)
     
@@ -59,7 +73,12 @@ class GeminiClient:
         max_output_tokens: Optional[int] = None
     ) -> str:
         """
-        生成内容
+        生成内容（带智能重试机制）
+        
+        当遇到 API 配额限制（429 错误）时，会自动重试：
+        - 最多重试 5 次
+        - 等待时间：60 → 90 → 120 → 150 → 180 秒（如果错误信息中没有建议时间）
+        - 如果错误信息包含建议等待时间，会优先使用该时间 + 5 秒缓冲
         
         Args:
             prompt: 用户提示
@@ -69,6 +88,9 @@ class GeminiClient:
         
         Returns:
             AI 生成的文本内容
+        
+        Raises:
+            Exception: 如果达到最大重试次数仍失败，会抛出异常
         """
         generation_config = {
             "temperature": temperature,
@@ -85,14 +107,68 @@ class GeminiClient:
         else:
             model = self.model
         
-        try:
-            response = model.generate_content(
-                prompt,
-                generation_config=generation_config
-            )
-            return response.text
-        except Exception as e:
-            raise Exception(f"Error generating content: {str(e)}")
+        import time
+        max_retries_per_error = 5  # 每次遇到错误时重试 5 次
+        # 重试延迟序列：60, 90, 120, 150, 180 秒
+        retry_delays = [60, 90, 120, 150, 180]
+        
+        attempt = 0
+        while attempt < max_retries_per_error:
+            try:
+                response = model.generate_content(
+                    prompt,
+                    generation_config=generation_config
+                )
+                return response.text
+            except Exception as e:
+                error_str = str(e)
+                # 打印完整错误信息以便调试
+                if attempt == 0:  # 只在第一次失败时打印完整错误
+                    print(f"  🔍 完整错误信息: {error_str[:500]}...")  # 只打印前500字符
+                
+                # 检查是否是配额限制错误（429）
+                if "429" in error_str or "Resource has been exhausted" in error_str or "quota" in error_str.lower():
+                    if attempt < max_retries_per_error - 1:
+                        # 尝试从错误信息中提取重试延迟时间（多种格式）
+                        import re
+                        retry_delay = None
+                        
+                        # 格式1: "retry in 13.429413162s"
+                        delay_match = re.search(r'retry in ([\d.]+)\s*s', error_str, re.IGNORECASE)
+                        if delay_match:
+                            retry_delay = int(float(delay_match.group(1))) + 5  # 加5秒缓冲
+                            print(f"  📋 从错误信息中提取到建议等待时间: {delay_match.group(1)} 秒")
+                        
+                        # 格式2: "Please retry in 13.429413162s"
+                        if not retry_delay:
+                            delay_match = re.search(r'Please retry in ([\d.]+)\s*s', error_str, re.IGNORECASE)
+                            if delay_match:
+                                retry_delay = int(float(delay_match.group(1))) + 5
+                                print(f"  📋 从错误信息中提取到建议等待时间: {delay_match.group(1)} 秒")
+                        
+                        # 格式3: 检查异常对象的属性（Google API 可能在这里存储信息）
+                        if not retry_delay and hasattr(e, 'retry_delay'):
+                            retry_delay = int(e.retry_delay) + 5
+                            print(f"  📋 从异常对象中提取到等待时间: {e.retry_delay} 秒")
+                        
+                        # 如果都没有提取到，使用预定义的延迟序列
+                        if not retry_delay:
+                            retry_delay = retry_delays[attempt]  # 60, 90, 120, 150, 180 秒
+                            print(f"  📋 未找到建议等待时间，使用预定义延迟: {retry_delay} 秒")
+                        
+                        # 确保等待时间至少为序列中的最小值
+                        retry_delay = max(retry_delay, retry_delays[0])
+                        
+                        print(f"  ⚠️  API 配额限制，等待 {retry_delay} 秒后重试 ({attempt + 1}/{max_retries_per_error})...")
+                        time.sleep(retry_delay)
+                        attempt += 1
+                        continue
+                    else:
+                        # 达到最大重试次数，抛出异常（让上层处理，可能会再次调用这个函数）
+                        raise Exception(f"Error generating content: {error_str}\n已达到最大重试次数 ({max_retries_per_error} 次)，请稍后再试或检查 API 配额。")
+                else:
+                    # 其他错误直接抛出
+                    raise Exception(f"Error generating content: {error_str}")
     
     def generate_content_stream(
         self,

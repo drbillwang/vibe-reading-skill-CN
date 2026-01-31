@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Dict, Optional, Any
 
 from .main import VibeReadingSkill
+from .pdf_generator import (
+    generate_pdf_from_summaries,
+    generate_pdf_from_combined_content
+)
 
 
 def process_book(
@@ -23,13 +27,19 @@ def process_book(
     
     这是 skill 的标准接口，可以被 IDE 或 skill 市场调用。
     
+    功能特性：
+    - 智能章节识别：AI 自动识别书籍结构，支持大文档的渐进式预览
+    - 自动封面生成：从文件名提取书名和作者，生成专业 PDF 封面
+    - 智能重试机制：遇到 API 配额限制时自动重试（最多 5 次，等待 60/90/120/150/180 秒）
+    - 错误自动修复：AI 生成的代码执行失败时，会让 AI 看到错误并重新生成
+    
     Args:
         input_path: 输入文件路径（EPUB 或 TXT 格式）
         output_dir: 输出目录（可选，默认使用项目目录结构）
         api_key: Gemini API Key（可选，也可通过环境变量设置）
         model: 使用的 Gemini 模型（可选，默认 gemini-2.5-pro）
         **options: 其他选项
-            - generate_pdf: 是否生成 PDF（默认 True）
+            - generate_pdf: 是否生成 PDF（默认 True，需要安装 playwright 和 chromium）
             - generate_html: 是否生成 HTML（默认 True）
             - base_dir: 项目根目录（默认当前目录）
     
@@ -41,7 +51,7 @@ def process_book(
             "output_paths": {
                 "chapters": "chapters/",
                 "summaries": "summaries/",
-                "pdf": "pdf/book_summary.pdf",
+                "pdf": "pdf/book_summary.pdf",  # 如果生成成功
                 "html": "html/interactive_reader.html"
             },
             "metadata": {
@@ -55,6 +65,14 @@ def process_book(
         >>> result = process_book("book.epub")
         >>> print(result["status"])
         'success'
+        >>> if result["status"] == "success":
+        ...     print(f"PDF: {result['output_paths']['pdf']}")
+        ...     print(f"章节数: {result['metadata']['chapter_count']}")
+    
+    Note:
+        - 如果遇到 API 配额限制（429 错误），系统会自动重试
+        - PDF 生成需要安装 playwright 和 chromium（详见 README.md）
+        - 封面会自动从文件名提取，或使用 summaries/00_Cover.md 文件
     """
     import time
     from pathlib import Path
@@ -136,6 +154,8 @@ def process_book(
 __all__ = [
     "VibeReadingSkill",
     "process_book",
+    "generate_pdf_from_summaries",
+    "generate_pdf_from_combined_content",
 ]
 
 __version__ = "0.1.0"

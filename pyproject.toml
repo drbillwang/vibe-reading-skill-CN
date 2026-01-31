@@ -42,7 +42,7 @@ dependencies = [
     "google-generativeai>=0.3.0",
     "ebooklib>=0.18",
     "markdown>=3.4.0",
-    "weasyprint>=59.0",
+    "playwright>=1.40.0",
 ]
 
 [project.optional-dependencies]
@@ -59,7 +59,13 @@ Repository = "https://github.com/yourusername/vibe-reading-skill.git"
 Issues = "https://github.com/yourusername/vibe-reading-skill/issues"
 
 [tool.setuptools]
-py-modules = ["__init__", "main", "gemini_client", "utils"]
+packages = ["vibe_reading_skill_CN"]
+
+[tool.setuptools.package-data]
+"vibe_reading_skill_CN" = [
+    "SKILL.md",
+    "skill.json",
+]
 
 [tool.black]
 line-length = 100

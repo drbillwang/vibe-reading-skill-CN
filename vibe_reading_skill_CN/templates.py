@@ -7,255 +7,222 @@ Vibe Reading Skill - Templates
 
 
 def get_pdf_css() -> str:
-    """返回 PDF 专业排版 CSS"""
+    """返回 PDF 专业排版 CSS（用于 Playwright）"""
     return """
 @page {
     size: A4;
-    margin: 25mm 20mm 25mm 20mm;
-    
-    @top-center {
-        content: string(chapter-title);
-        font-size: 9pt;
-        color: #666;
-        border-bottom: 0.5pt solid #ddd;
-        padding-bottom: 3pt;
-        font-weight: normal;
-    }
-    
-    @bottom-center {
-        content: counter(page);
-        font-size: 10pt;
-        color: #333;
-        font-weight: 500;
-        padding-top: 5pt;
-    }
-    
-    @bottom-left {
-        content: "Vibe Reading Skill";
-        font-size: 8pt;
-        color: #999;
-    }
-    
-    @bottom-right {
-        content: "第 " counter(page) " 页";
-        font-size: 9pt;
-        color: #666;
-    }
+    margin: 2.5cm 2cm 2.5cm 2.5cm;
 }
 
-/* 封面页 */
-.cover-page {
-    page: cover;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+@page:first {
+    margin: 0;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", "Microsoft YaHei", "WenQuanYi Micro Hei", "Source Han Serif SC", serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: #1a1a1a;
+    text-align: justify;
+}
+
+/* 封面样式 */
+.cover {
+    page-break-after: always;
     text-align: center;
-}
-
-.cover-content {
-    max-width: 500pt;
+    padding: 200pt 40pt 0 40pt;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .cover-title {
+    font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
     font-size: 36pt;
     font-weight: bold;
-    color: #0f172a;
-    margin-bottom: 16pt;
-    line-height: 1.3;
-    letter-spacing: -0.5pt;
-}
-
-.cover-author {
-    font-size: 18pt;
-    color: #475569;
-    margin-bottom: 30pt;
-    font-weight: 500;
+    color: #000000;
+    margin-bottom: 40pt;
+    line-height: 1.4;
 }
 
 .cover-subtitle {
-    font-size: 14pt;
-    color: #64748b;
-    margin-bottom: 20pt;
-    font-weight: normal;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", serif;
+    font-size: 18pt;
+    color: #1a1a1a;
+    margin-bottom: 25pt;
+    line-height: 1.6;
 }
 
-.cover-divider {
-    width: 200pt;
-    height: 1.5pt;
-    background: linear-gradient(to right, transparent, #cbd5e1, transparent);
-    margin: 35pt auto;
-}
-
-.cover-meta {
-    font-size: 11pt;
-    color: #64748b;
-    margin-top: 50pt;
-    line-height: 1.8;
-}
-
-.cover-meta-item {
-    margin: 8pt 0;
-    color: #475569;
-}
-
-.cover-brand {
-    margin-top: 30pt;
-    font-size: 10pt;
-    color: #94a3b8;
-    font-style: italic;
-}
-
-/* 目录页 */
-.toc-page {
-    page: toc;
+/* 目录样式 */
+.toc {
+    page-break-after: always;
+    padding: 20pt 0;
 }
 
 .toc-title {
-    font-size: 24pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", sans-serif;
+    font-size: 28pt;
     font-weight: bold;
     text-align: center;
-    margin-bottom: 30pt;
-    color: #0f172a;
+    margin: 40pt 0 40pt 0;
+    color: #000000;
 }
 
-/* 正文样式 */
-.content {
-    page: content;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', serif;
-    font-size: 11pt;
-    line-height: 1.6;
-    color: #0f172a;
-}
-
-/* 章节分割线 */
-.chapter-divider {
-    page-break-before: always;
-    border-top: 3pt solid #2563eb;
-    margin: 40pt 0 30pt 0;
-    padding-top: 20pt;
+.toc-item {
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", serif;
+    font-size: 13pt;
+    line-height: 2;
+    margin-bottom: 6pt;
+    padding-left: 0;
+    text-indent: 0;
 }
 
 /* 章节标题 */
 h1 {
-    font-size: 20pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+    font-size: 26pt;
     font-weight: bold;
-    color: #0f172a;
-    margin-top: 30pt;
-    margin-bottom: 20pt;
-    padding-bottom: 10pt;
-    border-bottom: 2pt solid #e2e8f0;
+    color: #000000;
+    margin: 40pt 0 24pt 0;
     page-break-after: avoid;
-    string-set: chapter-title content();
+    line-height: 1.3;
+    text-indent: 0;
 }
 
 h2 {
-    font-size: 14pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", sans-serif;
+    font-size: 18pt;
     font-weight: bold;
-    color: #1e293b;
-    margin-top: 18pt;
-    margin-bottom: 10pt;
+    color: #000000;
+    margin: 24pt 0 16pt 0;
     page-break-after: avoid;
+    line-height: 1.4;
+    text-indent: 0;
 }
 
 h3 {
-    font-size: 12pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STHeiti", "Microsoft YaHei", sans-serif;
+    font-size: 15pt;
     font-weight: bold;
-    color: #334155;
-    margin-top: 14pt;
-    margin-bottom: 8pt;
+    color: #000000;
+    margin: 18pt 0 12pt 0;
     page-break-after: avoid;
+    line-height: 1.4;
+    text-indent: 0;
 }
 
-/* 段落 */
+/* 段落样式 */
 p {
-    margin-top: 6pt;
-    margin-bottom: 6pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", "Source Han Serif SC", serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a1a;
     text-align: justify;
-    text-indent: 2em; /* 中文首行缩进 */
+    text-indent: 2em;  /* 首行缩进2字符 */
+    margin-bottom: 8pt;
+    orphans: 2;
+    widows: 2;
 }
 
-/* 列表 */
+/* 列表样式 */
 ul, ol {
-    margin-top: 8pt;
-    margin-bottom: 8pt;
-    padding-left: 20pt;
+    margin: 10pt 0 10pt 30pt;
+    padding-left: 0;
 }
 
 li {
-    margin-top: 4pt;
-    margin-bottom: 4pt;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", serif;
+    font-size: 11pt;
+    line-height: 1.7;
+    color: #1a1a1a;
+    margin-bottom: 6pt;
+    text-indent: 0;
 }
 
-/* 引用块 */
+ul ul, ol ol, ul ol, ol ul {
+    margin-left: 30pt;
+    margin-top: 6pt;
+}
+
+/* 引用块样式 */
 blockquote {
-    margin: 12pt 0;
-    padding: 12pt 16pt;
-    border-left: 3pt solid #2563eb;
-    background: #f8fafc;
-    font-style: italic;
-    color: #475569;
-}
-
-/* 代码块 */
-pre {
-    background: #1e293b;
-    color: #e2e8f0;
-    padding: 12pt;
-    border-radius: 4pt;
-    overflow-x: auto;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 9pt;
-    line-height: 1.4;
-    margin: 12pt 0;
-}
-
-code {
-    background: #f1f5f9;
-    padding: 2pt 4pt;
-    border-radius: 2pt;
-    font-family: 'Consolas', 'Monaco', monospace;
+    font-family: "PingFang SC", "Hiragino Sans GB", "STSong", "SimSun", serif;
     font-size: 10pt;
+    line-height: 1.7;
+    color: #1a1a1a;
+    background-color: #F5F5F5;
+    border-left: 4pt solid #CCCCCC;
+    margin: 12pt 0;
+    padding: 14pt 24pt;
+    font-style: italic;
+    text-indent: 0;
+    border-radius: 2pt;
+}
+
+/* 代码样式 */
+code {
+    font-family: "Courier New", "Monaco", "Consolas", "Source Code Pro", monospace;
+    font-size: 10pt;
+    background-color: #F8F8F8;
+    padding: 2pt 5pt;
+    border-radius: 3pt;
+    border: 1pt solid #E0E0E0;
+}
+
+pre {
+    font-family: "Courier New", "Monaco", "Consolas", "Source Code Pro", monospace;
+    font-size: 9.5pt;
+    background-color: #F8F8F8;
+    border: 1pt solid #CCCCCC;
+    border-radius: 4pt;
+    padding: 14pt;
+    margin: 12pt 0;
+    overflow-x: auto;
+    text-indent: 0;
+    line-height: 1.5;
 }
 
 pre code {
-    background: transparent;
+    background: none;
     padding: 0;
-}
-
-/* 分隔线 */
-hr {
     border: none;
-    border-top: 1pt solid #e2e8f0;
-    margin: 20pt 0;
 }
 
-/* 强调 */
-strong {
+/* 强调样式 */
+strong, b {
     font-weight: bold;
-    color: #0f172a;
+    color: #000000;
 }
 
-em {
+em, i {
     font-style: italic;
 }
 
-/* 避免分页问题 */
-h1, h2, h3, h4, h5, h6 {
-    page-break-after: avoid;
-}
-
-blockquote, pre {
-    page-break-inside: avoid;
-}
-
 /* 章节分隔 */
-h1 {
+.chapter {
     page-break-before: always;
 }
 
-h1:first-of-type {
-    page-break-before: auto;
+/* 避免在标题后分页 */
+h1, h2, h3 {
+    page-break-after: avoid;
+}
+
+/* 避免在段落中间分页 */
+p {
+    page-break-inside: avoid;
+}
+
+/* 列表项避免分页 */
+li {
+    page-break-inside: avoid;
 }
 """
 
@@ -739,42 +706,44 @@ def get_html_css() -> str:
         """
 
 
-def get_pdf_html_template(html_body: str, book_title: str, book_author: str, model_name: str, gen_date: str) -> str:
-    """生成包含封面和样式的 PDF HTML"""
+def get_pdf_html_template(html_body: str, book_title: str, book_author: str, model_name: str, gen_date: str, toc_items: list = None) -> str:
+    """生成包含封面和样式的 PDF HTML（用于 Playwright）"""
+    # 获取 CSS
+    pdf_css = get_pdf_css()
+    
+    # 生成封面（参考 00_Cover 文件格式）
+    cover_html = f'''<div class="cover">
+    <div class="cover-title">{book_title}</div>
+    <div class="cover-subtitle">by {book_author}</div>
+    <div class="cover-subtitle" style="margin-top: 60pt;"></div>
+    <div class="cover-subtitle">Summarized by Vibe_reading ({model_name})</div>
+    <div class="cover-subtitle">{gen_date}</div>
+</div>'''
+    
+    # 生成目录
+    toc_html = ''
+    if toc_items:
+        toc_html = '<div class="toc">'
+        toc_html += '<div class="toc-title">目录</div>'
+        for title in toc_items:
+            toc_html += f'<div class="toc-item">{title}</div>'
+        toc_html += '</div>'
+    
+    # 生成完整 HTML
     return f"""<!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{book_title}</title>
+    <style>
+        {pdf_css}
+    </style>
 </head>
 <body>
-    <!-- 封面页 -->
-    <div class="cover-page">
-        <div class="cover-content">
-            <h1 class="cover-title">{book_title}</h1>
-            <div class="cover-author">作者：{book_author}</div>
-            <div class="cover-divider"></div>
-            <div class="cover-subtitle">AI 智能阅读分析总结</div>
-            <div class="cover-meta">
-                <p class="cover-meta-item">使用模型：{model_name}</p>
-                <p class="cover-meta-item">总结日期：{gen_date}</p>
-                <p class="cover-brand">使用 Vibe Reading Skill 生成</p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 目录页 -->
-    <div class="toc-page">
-        <h1 class="toc-title">目录</h1>
-        <div class="toc-content">
-            <!-- 目录将通过 CSS 自动生成 -->
-        </div>
-    </div>
-    
-    <!-- 正文内容 -->
-    <div class="content">
-        {html_body}
-    </div>
+    {cover_html}
+    {toc_html}
+    {html_body}
 </body>
 </html>"""
 

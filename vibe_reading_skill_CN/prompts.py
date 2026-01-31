@@ -8,25 +8,50 @@ Vibe Reading Skill - AI Prompts
 from typing import Optional, Dict, List, Tuple
 
 
-def get_chapter_identification_prompt(document_text: str) -> str:
-    """获取章节识别的 prompt - 阶段1：让AI分析文档格式并生成扫描代码"""
+def get_chapter_identification_prompt(
+    document_text: str,
+    start_lines: int = 500,
+    end_lines: int = 500,
+    mid1_range: int = 200,
+    mid2_range: int = 200
+) -> str:
+    """
+    获取章节识别的 prompt - 阶段1：让AI分析文档格式并生成扫描代码
+    
+    Args:
+        document_text: 文档文本
+        start_lines: 开头预览行数
+        end_lines: 结尾预览行数
+        mid1_range: 中间25%位置的前后范围（单边行数）
+        mid2_range: 中间50%位置的前后范围（单边行数）
+    """
     lines = document_text.split('\n')
     total_lines = len(lines)
     
     # 获取文档的多个关键部分用于分析
     preview_parts = []
-    # 开头部分（前 500 行）
-    preview_parts.append(("开头部分（前 500 行）", '\n'.join(lines[:500])))
-    # 中间部分（25% 位置，前后各 200 行）
-    mid_start = max(0, total_lines // 4 - 200)
-    mid_end = min(total_lines, total_lines // 4 + 200)
-    preview_parts.append((f"中间部分（第 {mid_start}-{mid_end} 行）", '\n'.join(lines[mid_start:mid_end])))
-    # 50% 位置
-    mid2_start = max(0, total_lines // 2 - 200)
-    mid2_end = min(total_lines, total_lines // 2 + 200)
-    preview_parts.append((f"中间部分（第 {mid2_start}-{mid2_end} 行）", '\n'.join(lines[mid2_start:mid2_end])))
-    # 结尾部分（最后 500 行）
-    preview_parts.append(("结尾部分（最后 500 行）", '\n'.join(lines[-500:])))
+    
+    # 开头部分
+    if start_lines > 0:
+        preview_parts.append((f"开头部分（前 {start_lines} 行）", '\n'.join(lines[:start_lines])))
+    
+    # 中间部分（25% 位置）
+    if mid1_range > 0 and total_lines > 100:
+        mid_start = max(0, total_lines // 4 - mid1_range)
+        mid_end = min(total_lines, total_lines // 4 + mid1_range)
+        if mid_end > mid_start:
+            preview_parts.append((f"中间部分（第 {mid_start}-{mid_end} 行，约25%位置）", '\n'.join(lines[mid_start:mid_end])))
+    
+    # 中间部分（50% 位置）
+    if mid2_range > 0 and total_lines > 100:
+        mid2_start = max(0, total_lines // 2 - mid2_range)
+        mid2_end = min(total_lines, total_lines // 2 + mid2_range)
+        if mid2_end > mid2_start:
+            preview_parts.append((f"中间部分（第 {mid2_start}-{mid2_end} 行，约50%位置）", '\n'.join(lines[mid2_start:mid2_end])))
+    
+    # 结尾部分
+    if end_lines > 0:
+        preview_parts.append((f"结尾部分（最后 {end_lines} 行）", '\n'.join(lines[-end_lines:])))
     
     preview_text = "\n\n".join([f"=== {name} ===\n{content}" for name, content in preview_parts])
     
@@ -300,7 +325,8 @@ def get_context_strategy_prompt(chapter_length: int, prev_summary_length: int) -
 }}"""
 
 
-def get_fix_chapter_line_numbers_prompt(chapter: dict, document_text: str, index: int, total_lines: int, suggested_start: Optional[int] = None) -> str:
+def get_fix_chapter_line_numbers_prompt(chapter: dict, document_text: str, index: int, total_lines: int,
+                                        suggested_start: Optional[int] = None) -> str:
     """获取修复章节行号的 prompt"""
     title = chapter.get('title', f'Chapter {index+1}')
     chapter_preview = document_text[:50000]  # 前 50000 字符用于分析
@@ -349,6 +375,7 @@ def get_chapter_analysis_prompt(context_str: str, chapter_metadata: dict, analys
 
 1. **Direct Immersion (直接沉浸)**：
    - ❌ 禁止废话：严禁使用"作者介绍了..."、"本章讨论了..."等元分析语言
+   - ❌ **严禁输出"Expert Ghost-Reader 已就位"、"这是对该章节的高保真浓缩版重写"等任何话术或说明文字**
    - ✅ 直接陈述内容：像原书一样写，保持原书的语调（幽默、严肃或犀利）
    - ✅ 隐去作者：把书里的观点当成既定事实写出来，不要说"作者指出"
 
@@ -368,7 +395,12 @@ def get_chapter_analysis_prompt(context_str: str, chapter_metadata: dict, analys
    - 如果整章都是这种内容：直接说"本章为插图/图表标注，无文本内容"
    - 功能性章节（目录、地图列表、简单致谢）：一句话带过即可
 
-**输出格式**：
+**输出格式（严格遵循）**：
+- **直接以 `# 章节标题` 开头，不要任何前缀、说明文字或话术**
+- ❌ **禁止输出"Expert Ghost-Reader 已就位"等任何话术**
+- ❌ **禁止输出章节编号（如"第十二章"、"Chapter 12"等），只输出章节标题本身**
+- ✅ **正确示例**：`# 政治与战争`
+- ❌ **错误示例**：`# 第十二章 政治与战争` 或 `好的，Expert Ghost-Reader 已就位。这是对该章节的"高保真浓缩版"重写。\n\n# 第十二章 政治与战争`
 - 使用 Markdown 格式
 - 使用 **核心主题 (Bold)** + 深度叙述段落 的形式
 - 可以使用无序列表，但每个点都是一段完整、流畅、有细节的小短文（不是简单的 bullet point）
@@ -378,4 +410,7 @@ def get_chapter_analysis_prompt(context_str: str, chapter_metadata: dict, analys
 
 **目标效果**：读者读你的总结，应该感觉像是在读原书的"高保真浓缩版"，等同于读了原书，且不会遗漏任何精彩细节。
 
-**再次强调：所有输出必须使用中文（简体中文），包括章节标题、正文内容、所有文字都必须用中文。如果原书是其他语言，你需要将内容翻译成中文。**"""
+**再次强调**：
+1. **所有输出必须使用中文（简体中文），包括章节标题、正文内容、所有文字都必须用中文。如果原书是其他语言，你需要将内容翻译成中文。**
+"""
+
