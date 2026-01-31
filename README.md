@@ -62,7 +62,7 @@
   <p><em>我最近在读奥古斯都传记，原书是个大部头的鸿篇巨著，有600页以上</em></p>
   
   <img src="docs/images/pdf_content.png" alt="PDF 内容" width="600"/>
-  <p><em>结构化分析后，干货总结为77页/em></p>
+  <p><em>结构化分析后，干货总结为77页</em></p>
 </div>
 
 ### 🌐 HTML 交互式阅读界面
