@@ -349,6 +349,8 @@ A: 在 `summaries/` 目录中创建 `00_Cover.md` 文件，第一行是书名，
 clawhub install vibe-reading-cn
 ```
 
+ClawHub: https://clawhub.ai/skills/vibe-reading-cn
+
 ### 或手动安装
 
 将 `openclaw/` 目录复制到你的 OpenClaw workspace skills 文件夹：
