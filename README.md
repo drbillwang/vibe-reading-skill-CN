@@ -3,6 +3,7 @@
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8%2B-green)
 ![Gemini](https://img.shields.io/badge/AI-Gemini-orange)
+![OpenClaw](https://img.shields.io/badge/platform-OpenClaw-purple)
 
 > **Vibe Reading — 在 AI 时代你真正要掌握的技能。**
 
@@ -338,7 +339,36 @@ A: 系统会自动重试（最多 5 次），也可以：
 
 A: 在 `summaries/` 目录中创建 `00_Cover.md` 文件，第一行是书名，后续行是其他信息（作者、日期等）
 
+## OpenClaw 支持
+
+本项目现已包含 **OpenClaw 兼容的技能**，位于 `openclaw/` 目录下。OpenClaw 是一个模型无关的 AI Agent 平台 —— 该技能可以适配任何底层模型（GLM、Claude、GPT、Gemini 等），无需特定 API Key。
+
+### 通过 ClawHub 安装
+
+```bash
+clawhub install vibe-reading-cn
+```
+
+### 或手动安装
+
+将 `openclaw/` 目录复制到你的 OpenClaw workspace skills 文件夹：
+
+```bash
+cp -r openclaw/ ~/.openclaw/workspace/skills/vibe-reading-cn
+```
+
+### 与 Python 包的区别
+
+| 特性 | Python 包 (`pip install`) | OpenClaw Skill |
+|---------|-------------------------------|----------------|
+| AI 模型 | 仅 Google Gemini | 任意模型（GLM、Claude、GPT、Gemini 等） |
+| 安装方式 | `pip install` | `clawhub install` 或复制 `openclaw/` |
+| 依赖项 | `google-generativeai`、`ebooklib`、`playwright` 等 | 仅需 `python3`（用于 EPUB 转换） |
+| 输出格式 | Markdown、PDF、HTML | 相同（Markdown、PDF、HTML） |
+| 输出语言 | 中文 | 中文 |
+
 ## 相关链接
 
 - [Skill 指令](SKILL.md) - AI 处理指令
 - [环境变量示例](env.example) - 完整的配置示例
+- [OpenClaw 技能定义](openclaw/SKILL.md) - OpenClaw 兼容技能文件
