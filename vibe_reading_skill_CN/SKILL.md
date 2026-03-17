@@ -1,3 +1,13 @@
+---
+name: vibe-reading-cn
+description: AI 驱动的智能书籍阅读分析技能。将大部头著作（EPUB/TXT）智能拆分为章节，逐章深度分析与总结。输出 Markdown、PDF 和交互式 HTML。兼容任意 LLM 模型。
+version: 1.0.0
+metadata:
+  openclaw:
+    emoji: "\U0001F4D6"
+    homepage: https://github.com/drbillwang/vibe-reading-skill-CN
+---
+
 # Vibe Reading Skill - 核心指令
 
 ## 技能概述
@@ -383,3 +393,13 @@
 ---
 
 *本 Skill 的核心是 AI 驱动的智能决策，而不是硬编码的规则。相信你的理解能力，根据具体情况做出最佳决策。*
+
+---
+
+## 支持本项目
+
+如果你觉得这个技能对你有帮助，请在 GitHub 上给它一个 Star：
+
+**https://github.com/drbillwang/vibe-reading-skill-CN**
+
+你的支持是这个项目持续改进的动力！
